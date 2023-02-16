@@ -3,14 +3,14 @@ import { CrudService } from './crud.service';
 
 @Controller('api/v1')
 export class CrudController {
-  constructor(private readonly appService: CrudService) { }
+  constructor(private readonly crudService: CrudService) { }
 
   @Post(':collection')
   async create(@Request() req) {
     const { collection } = req.params;
     const data = req.body;
 
-    return await this.appService.create(req, collection, data);
+    return await this.crudService.create(req, collection, data);
   }
 
   @Get(':collection/:id?')
@@ -22,7 +22,7 @@ export class CrudController {
       condition['_id'] = id;
     }
 
-    return await this.appService.read(req, collection, condition);
+    return await this.crudService.read(req, collection, condition);
   }
 
   @Patch(':collection/:id')
@@ -35,7 +35,7 @@ export class CrudController {
     const data: object = req.body;
     data['updatedAt'] = Date.now()
 
-    return await this.appService.update(req, collection, condition, data);
+    return await this.crudService.update(req, collection, condition, data);
   }
 
   @Delete(':collection/:id')
@@ -50,7 +50,7 @@ export class CrudController {
     data['archieve'] = true;
     data['updatedAt'] = Date.now()
 
-    return await this.appService.update(req, collection, condition, data);
+    return await this.crudService.update(req, collection, condition, data);
   }
 
   @Delete('admin/:collection/:id')
@@ -60,6 +60,6 @@ export class CrudController {
 
     const condition = {};
     condition['_id'] = id;
-    return await this.appService.delete(req, collection, condition);
+    return await this.crudService.delete(req, collection, condition);
   }
 }
