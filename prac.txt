@@ -1,0 +1,62 @@
+import { Injectable } from '@nestjs/common';
+import mongoose from 'mongoose';
+
+@Injectable({})
+export class AppService {
+  private path: string;
+  constructor() {
+    this.path = process.cwd() + '/src/schemas/';
+    this.db = connectDB(this.path);
+  }
+
+  create = async (table: string, data) => {
+    const model = this.db.model(table);
+    const newRecord = await this.db.create(data);
+    return newRecord;
+  };
+}
+
+const connectDB = async (path): Promise<void> => {
+  try {
+    mongoose.set('strictQuery', false);
+    await mongoose.connect(process.env.MONGODB_URI);
+
+    console.log(`MongoDB Database Connected Successfully`);
+
+    const modelJson = require(path + table + '.ts'); //eslint-disable-line
+
+    const documentSchema = new mongoose.Schema(modelJson.schema);
+    const model = mongoose.model(table, documentSchema, table);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+
+
+// const syncModelsWithDB = (path) => {
+//   try {
+//     fs.readdir(path, (err, files) => {
+//       if (!err) {
+//         files.forEach(async (file) => {
+//           const modelJson = require(path + file); //eslint-disable-line
+//           const modelName = file.split('.')[0];
+//           console.log(modelName);
+
+//           mongoose.set('strictQuery', false);
+//           await mongoose.connect(process.env.MONGODB_URI);
+//           console.log(`MongoDB Database Connected Successfully`);
+
+//           const documentSchema = new mongoose.Schema(modelJson.schema);
+//           mongoose.model(modelName, documentSchema, modelName);
+//         });
+//       } else {
+//         console.log('error', err);
+//       }
+//     });
+//   } catch (error) {
+//     console.error('unabled to sync models with database: ', error);
+//   }
+// };
