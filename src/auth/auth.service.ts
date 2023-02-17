@@ -15,7 +15,7 @@ export class AuthService {
 
   signup = async (req: object, collection: string, data: object) => {
     const condition = { email: data['email'] };
-    const user = await this.findUser(req, collection, condition);
+    const user = await this.findUser(collection, condition, req);
 
     if (user['returnRecord']) throw new ConflictException('User Already Exit');
 
@@ -28,7 +28,7 @@ export class AuthService {
   signin = async (req: object, collection: string, data: object) => {
     const condition = { email: data['email'] };
 
-    const user = await this.findUser(req, collection, condition);
+    const user = await this.findUser(collection, condition, req);
     if (!user['returnRecord']) throw new UnauthorizedException('Invalid Email or Password');
     const isPasswordMatch = await bcrypt.compare(data['password'], user.data[0]['password']);
     if (!isPasswordMatch) throw new UnauthorizedException('Invalid Email or Password');
@@ -36,8 +36,40 @@ export class AuthService {
     return this.sendTokenWithData(user.data[0]);
   };
 
-  private findUser = async (req: object, collection: string, condition: object) => {
-    const response = await this.crudService.read(req, collection, condition);
+  verifyToken = async (req: object) => {
+    try {
+      // 1) Getting token and check it's there
+      const token: string = req['headers']['authorization'].split(' ')[1];
+
+      if (!token) {
+        throw new UnauthorizedException();
+      }
+
+      // 2) Verification token
+      const cryptr = new Cryptr(process.env.JWT_SECRET);
+      const decoded = this.jwtService.verify(cryptr.decrypt(token));
+
+      // 3) Check if user still exists
+      const condtion = { _id: decoded.user._id };
+      const currentUser = await this.findUser('user', condtion, req);
+
+      if (!currentUser['returnRecord']) {
+        throw new UnauthorizedException();
+      }
+
+      // 4) Check if user changed password after the token was issued
+      if (decoded.user.password !== currentUser.data[0]['password']) {
+        throw new UnauthorizedException();
+      }
+
+      return decoded.user;
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+  };
+
+  private findUser = async (collection: string, condition: object, req: object) => {
+    const response = await this.crudService.read(collection, condition, req);
 
     return response;
   };

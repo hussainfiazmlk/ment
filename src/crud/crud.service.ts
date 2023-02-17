@@ -16,7 +16,7 @@ export class CrudService {
     this.syncSchema();
   }
 
-  create = async (req: object, collection: string, data: object): Promise<{ data: object }> => {
+  create = async (req: object, collection: string, data: object): Promise<{ data: object; }> => {
     try {
       const model = this.db.model(collection);
       const newRecord = await model.create(data);
@@ -27,22 +27,22 @@ export class CrudService {
     }
   };
 
-  read = async (req: object, collection: string, condition: object): Promise<{ totalRecordInDb: number; returnRecord: number; data: object; }> => {
+  read = async (collection: string, condition: object, req: object, query: object = {}): Promise<{ totalRecordInDb: number; returnRecord: number; data: object; }> => {
     try {
       if (condition['_id']) {
-        this.isValidDocumentId(collection, condition['_id'])
+        this.isValidDocumentId(collection, condition['_id']);
       }
       const model = this.db.model(collection);
 
-      const archieve = { archieve: false }
-      condition = { ...condition, ...archieve }
+      const archieve = { archieve: false };
+      condition = { ...condition, ...archieve };
 
       const totalRecord: number = await model.count(archieve);
-      const features = new QueryService(model.find(condition), req['query']).filter().sort().paginate()
+      const features = new QueryService(model.find(condition), query).filter().sort().paginate();
       const allRecord = await features['query'];
 
       if (condition['_id'] && !allRecord.length) {
-        throw new BadRequestException(`${collection} with the id ${condition['_id']} not found `)
+        throw new BadRequestException(`${collection} with the id ${condition['_id']} not found `);
       }
 
       return { totalRecordInDb: totalRecord, returnRecord: allRecord.length, data: allRecord };
@@ -52,20 +52,20 @@ export class CrudService {
 
   };
 
-  update = async (req: object, collection: string, condition: object, data: object): Promise<{ data: object }> => {
+  update = async (req: object, collection: string, condition: object, data: object): Promise<{ data: object; }> => {
     try {
 
-      this.isValidDocumentId(collection, condition['_id'])
+      this.isValidDocumentId(collection, condition['_id']);
       const model = this.db.model(collection);
 
       const updatedRecord = await model.findOneAndUpdate(condition, data, { new: true });
 
       if (!updatedRecord) {
-        throw new BadRequestException(`${collection} with the id ${condition['_id']} not found `)
+        throw new BadRequestException(`${collection} with the id ${condition['_id']} not found `);
       }
 
       if (req['method'].toLowerCase() === 'delete') {
-        return
+        return;
       }
 
       return { data: updatedRecord };
@@ -76,14 +76,14 @@ export class CrudService {
 
   delete = async (req: object, collection: string, condition: object): Promise<void> => {
     try {
-      this.isValidDocumentId(collection, condition['_id'])
+      this.isValidDocumentId(collection, condition['_id']);
       const model = this.db.model(collection);
 
       const deleteRecord = await model.findOneAndDelete(condition);
 
-      if (!deleteRecord) throw new BadRequestException(`${collection} with the id ${condition['_id']} not found `)
+      if (!deleteRecord) throw new BadRequestException(`${collection} with the id ${condition['_id']} not found `);
     } catch (error) {
-      this.errorHandler(error)
+      this.errorHandler(error);
     }
   };
 
@@ -99,8 +99,8 @@ export class CrudService {
     if (error['name'] === 'ValidationError')
       throw new BadRequestException(Object.values(error['errors']).map((val) => val['message']));
     else if (error['name'] === 'MissingSchemaError')
-      throw new BadRequestException(error['message'].split('.')[0])
-    else throw new BadRequestException(error['message'])
+      throw new BadRequestException(error['message'].split('.')[0]);
+    else throw new BadRequestException(error['message']);
   }
 
   private syncSchema = async (): Promise<void> => {

@@ -20,4 +20,9 @@ export class AuthController {
 
     return await this.authService.signin(req, collection, data);
   }
+
+  @Post('verifyToken')
+  async verifyToken(@Request() req) {
+    return await this.authService.verifyToken(req);
+  }
 }

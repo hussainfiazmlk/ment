@@ -9,6 +9,7 @@ export class CrudController {
   async create(@Request() req) {
     const { collection } = req.params;
     const data = req.body;
+    data['createdBy'] = req['user']['_id'];
 
     return await this.crudService.create(req, collection, data);
   }
@@ -22,7 +23,9 @@ export class CrudController {
       condition['_id'] = id;
     }
 
-    return await this.crudService.read(req, collection, condition);
+    const query = req.query;
+
+    return await this.crudService.read(collection, condition, req, query);
   }
 
   @Patch(':collection/:id')
@@ -33,7 +36,8 @@ export class CrudController {
     condition['_id'] = id;
 
     const data: object = req.body;
-    data['updatedAt'] = Date.now()
+    data['updatedAt'] = Date.now();
+    data['updatedBy'] = req['user']['_id'];
 
     return await this.crudService.update(req, collection, condition, data);
   }
@@ -46,9 +50,10 @@ export class CrudController {
     const condition = {};
     condition['_id'] = id;
 
-    const data = {}
+    const data = {};
     data['archieve'] = true;
-    data['updatedAt'] = Date.now()
+    data['updatedAt'] = Date.now();
+    data['updatedBy'] = req['user']['_id'];
 
     return await this.crudService.update(req, collection, condition, data);
   }

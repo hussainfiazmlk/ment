@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { CrudModule } from 'src/crud/crud.module';
@@ -14,9 +14,10 @@ import { AuthService } from './auth.service';
       }),
       inject: [ConfigService],
     }),
-    CrudModule
+    forwardRef(() => CrudModule)
   ],
   controllers: [AuthController],
-  providers: [AuthService]
+  providers: [AuthService],
+  exports: [AuthService]
 })
 export class AuthModule { }
