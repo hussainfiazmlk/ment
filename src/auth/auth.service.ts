@@ -15,12 +15,12 @@ export class AuthService {
 
   signup = async (req: object, collection: string, data: object) => {
     const condition = { email: data['email'] };
-    const user = await this.findUser(collection, condition, req);
+    const user = await this.findUser(collection, condition);
 
     if (user['returnRecord']) throw new ConflictException('User Already Exit');
 
     data['password'] = await bcrypt.hash(data['password'], 10);
-    const newUser = await this.crudService.create(req, collection, data);
+    const newUser = await this.crudService.create(collection, data, req);
 
     return this.sendTokenWithData(newUser.data);
   };
@@ -28,7 +28,7 @@ export class AuthService {
   signin = async (req: object, collection: string, data: object) => {
     const condition = { email: data['email'] };
 
-    const user = await this.findUser(collection, condition, req);
+    const user = await this.findUser(collection, condition);
     if (!user['returnRecord']) throw new UnauthorizedException('Invalid Email or Password');
     const isPasswordMatch = await bcrypt.compare(data['password'], user.data[0]['password']);
     if (!isPasswordMatch) throw new UnauthorizedException('Invalid Email or Password');
@@ -51,7 +51,7 @@ export class AuthService {
 
       // 3) Check if user still exists
       const condtion = { _id: decoded.user._id };
-      const currentUser = await this.findUser('user', condtion, req);
+      const currentUser = await this.findUser('user', condtion);
 
       if (!currentUser['returnRecord']) {
         throw new UnauthorizedException();
@@ -68,8 +68,8 @@ export class AuthService {
     }
   };
 
-  private findUser = async (collection: string, condition: object, req: object) => {
-    const response = await this.crudService.read(collection, condition, req);
+  private findUser = async (collection: string, condition: object) => {
+    const response = await this.crudService.read(collection, condition);
 
     return response;
   };

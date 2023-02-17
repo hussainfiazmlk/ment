@@ -11,7 +11,7 @@ export class CrudController {
     const data = req.body;
     data['createdBy'] = req['user']['_id'];
 
-    return await this.crudService.create(req, collection, data);
+    return await this.crudService.create(collection, data, req);
   }
 
   @Get(':collection/:id?')
@@ -25,7 +25,7 @@ export class CrudController {
 
     const query = req.query;
 
-    return await this.crudService.read(collection, condition, req, query);
+    return await this.crudService.read(collection, condition, query, req);
   }
 
   @Patch(':collection/:id')
@@ -39,7 +39,7 @@ export class CrudController {
     data['updatedAt'] = Date.now();
     data['updatedBy'] = req['user']['_id'];
 
-    return await this.crudService.update(req, collection, condition, data);
+    return await this.crudService.update(collection, condition, data, req);
   }
 
   @Delete(':collection/:id')
@@ -55,7 +55,7 @@ export class CrudController {
     data['updatedAt'] = Date.now();
     data['updatedBy'] = req['user']['_id'];
 
-    return await this.crudService.update(req, collection, condition, data);
+    return await this.crudService.update(collection, condition, data, req);
   }
 
   @Delete('admin/:collection/:id')
@@ -65,6 +65,6 @@ export class CrudController {
 
     const condition = {};
     condition['_id'] = id;
-    return await this.crudService.delete(req, collection, condition);
+    return await this.crudService.delete(collection, condition, req);
   }
 }

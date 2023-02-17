@@ -16,7 +16,7 @@ export class CrudService {
     this.syncSchema();
   }
 
-  create = async (req: object, collection: string, data: object): Promise<{ data: object; }> => {
+  create = async (collection: string, data: object, req: object): Promise<{ data: object; }> => {
     try {
       const model = this.db.model(collection);
       const newRecord = await model.create(data);
@@ -27,7 +27,7 @@ export class CrudService {
     }
   };
 
-  read = async (collection: string, condition: object, req: object, query: object = {}): Promise<{ totalRecordInDb: number; returnRecord: number; data: object; }> => {
+  read = async (collection: string, condition: object, query: object = {}, req: object = {}): Promise<{ totalRecordInDb: number; returnRecord: number; data: object; }> => {
     try {
       if (condition['_id']) {
         this.isValidDocumentId(collection, condition['_id']);
@@ -52,7 +52,7 @@ export class CrudService {
 
   };
 
-  update = async (req: object, collection: string, condition: object, data: object): Promise<{ data: object; }> => {
+  update = async (collection: string, condition: object, data: object, req: object): Promise<{ data: object; }> => {
     try {
 
       this.isValidDocumentId(collection, condition['_id']);
@@ -74,7 +74,7 @@ export class CrudService {
     }
   };
 
-  delete = async (req: object, collection: string, condition: object): Promise<void> => {
+  delete = async (collection: string, condition: object, req: object): Promise<void> => {
     try {
       this.isValidDocumentId(collection, condition['_id']);
       const model = this.db.model(collection);
