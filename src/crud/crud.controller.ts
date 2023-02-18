@@ -25,7 +25,7 @@ export class CrudController {
 
     const query = req.query;
 
-    return await this.crudService.read(collection, condition, query, req);
+    return await this.crudService.read(collection, condition, req, query);
   }
 
   @Patch(':collection/:id')

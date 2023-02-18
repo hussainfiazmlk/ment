@@ -27,8 +27,14 @@ export class CrudService {
     }
   };
 
-  read = async (collection: string, condition: object, query: object = {}, req: object = {}): Promise<{ totalRecordInDb: number; returnRecord: number; data: object; }> => {
+  read = async (collection: string, condition: object, req: object = {}, query: object = {}): Promise<{ totalRecordInDb: number; returnRecord: number; data: object; }> => {
     try {
+      const role = req['user'] ? req['user']['role'] : req['body']['role'] ? req['body']['role'] : 'vistor';
+
+      const modelJson: object = require(this.path + collection + '.schema.ts');  //eslint-disable-line
+      const permission: object = modelJson['permissions'][role]
+      const attributes: string = Object.keys(permission).filter(key => permission[key].read).toString().split(',').join(' ')
+
       if (condition['_id']) {
         this.isValidDocumentId(collection, condition['_id']);
       }
@@ -38,7 +44,7 @@ export class CrudService {
       condition = { ...condition, ...archieve };
 
       const totalRecord: number = await model.count(archieve);
-      const features = new QueryService(model.find(condition), query).filter().sort().paginate();
+      const features = new QueryService(model.find(condition).select(attributes), query).filter().sort().paginate();
       const allRecord = await features['query'];
 
       if (condition['_id'] && !allRecord.length) {
