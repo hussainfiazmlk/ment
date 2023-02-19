@@ -26,47 +26,51 @@ module.exports.schema = {
 
 module.exports.permissions = {
   'vistor': {
-    'archieve': { read: false },
-    'createdAt': { read: false },
-    'updatedAt': { read: false },
+    '_id': {read: true, write: false},
+    'archieve': { read: false, write: false },
+    'createdAt': { read: false, write: false },
+    'updatedAt': { read: false, write: false },
 
-    "name": {read: true},
-    "email": {read: true},
-    "password": {read: true},
-    "role": {read: true},
+    "name": {read: true, write: false},
+    "email": {read: true, write: false},
+    "password": {read: true, write: false},
+    "role": {read: true, write: false},
 
   },
 
   'authenticated': {
-    'archieve': { read: false },
-    'createdAt': { read: false },
-    'updatedAt': { read: false },
+    '_id': {read: true, write: false},
+    'archieve': { read: false, write: false },
+    'createdAt': { read: false, write: true },
+    'updatedAt': { read: false, write: false },
 
-    "name": {read: true},
-    "email": {read: true},
-    "password": {read: false},
-    "role": {read: false},
+    "name": {read: true, write: true},
+    "email": {read: true, write: true},
+    "password": {read: false, write: true},
+    "role": {read: false, write: true},
   },
 
   "admin": {
-    'archieve': { read: false },
-    'createdAt': { read: true },
-    'updatedAt': { read: true },
+    '_id': {read: true, write: false},
+    'archieve': { read: false, write: false },
+    'createdAt': { read: true, write: true },
+    'updatedAt': { read: true, write: false },
 
-    "name": {read: true},
-    "email": {read: true},
-    "password": {read: true},
-    "role": {read: true},
+    "name": {read: true, write: true},
+    "email": {read: true, write: true},
+    "password": {read: true, write: true},
+    "role": {read: true, write: true},
   },
 
   'superadmin': {
-    'archieve': { read: false },
-    'createdAt': { read: true },
-    'updatedAt': { read: true },
+    '_id': {read: true, write: false},
+    'archieve': { read: true, write: true },
+    'createdAt': { read: true, write: true },
+    'updatedAt': { read: true, write: false },
 
-    "name": {read: true},
-    "email": {read: true},
-    "password": {read: true},
-    "role": {read: true},
+    "name": {read: true, write: true},
+    "email": {read: true, write: true},
+    "password": {read: true, write: true},
+    "role": {read: true, write: true},
   }
 };

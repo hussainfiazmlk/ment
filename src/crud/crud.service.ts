@@ -19,9 +19,21 @@ export class CrudService {
   create = async (collection: string, data: object, req: object): Promise<{ data: object; }> => {
     try {
       const model = this.db.model(collection);
+      
+      const role = req['user'] ? req['user']['role'] : req['body']['role'] ? req['body']['role'] : 'vistor';
+      const modelJson: object = require(this.path + collection + '.schema.ts');  //eslint-disable-line
+      const permission: object = modelJson['permissions'][role];
+      const writePermissions: string[] = Object.keys(permission).filter(key => permission[key].write);
+  
+      data = Object.fromEntries(Object.keys(data).filter(key => writePermissions.includes(key)).map(key => [key, data[key]]));
+
       const newRecord = await model.create(data);
 
-      return { data: newRecord };
+      const docs: object = newRecord.toObject();
+      const readPermissions: string[] = Object.keys(permission).filter(key => permission[key].read);
+      const returnData = Object.fromEntries(Object.keys(docs).filter(key => readPermissions.includes(key)).map(key => [key, docs[key]]));
+
+      return { data: returnData };
     } catch (error) {
       this.errorHandler(error);
     }
